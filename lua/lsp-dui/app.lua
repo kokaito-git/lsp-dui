@@ -24,7 +24,7 @@ function DuiApp:start()
     vim.notify("LSP Diagnostics UI is already running.", vim.log.levels.WARN)
     return
   end
-  vim.notify("Starting LSP Diagnostics UI...", vim.log.levels.ERROR)
+  vim.notify("Starting LSP Diagnostics UI...", vim.log.levels.DEBUG)
   self._running = true
   -- Aquí iría la lógica para iniciar la aplicación
 end
@@ -39,7 +39,6 @@ function DuiApp:stop()
 end
 
 function DuiApp:get_opts()
-  vim.notify("LSP Diagnostics UI test function called.", vim.log.levels.ERROR)
   return self._opts
 end
 
