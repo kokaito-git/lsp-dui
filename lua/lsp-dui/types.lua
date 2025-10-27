@@ -9,7 +9,7 @@
 
 -- Options para configurar el plugin
 ---@class DuiAppOpts
----@field order WindowOrder Cómo agrupar diagnósticos
+---@field order? WindowOrder Cómo agrupar diagnósticos
 
 ---@class DuiApp
 ---@field new fun(self: DuiApp, opts: DuiAppOpts?): DuiApp

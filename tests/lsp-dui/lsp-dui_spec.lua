@@ -8,6 +8,7 @@ local it
 
 describe("setup", function()
   it("works with default", function()
+    plugin.setup {}
     assert(plugin.app:test() == "Hello!", "my first function with param = Hello!")
   end)
 
