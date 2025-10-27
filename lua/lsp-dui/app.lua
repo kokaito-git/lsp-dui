@@ -52,6 +52,7 @@ end
 function DuiApp:new(opts)
   self = setmetatable({}, self)
   self._opts = _read_opts(opts)
+  vim.notify("LSP Diagnostics UI initialized with options: " .. vim.inspect(self._opts), vim.log.levels.ERROR)
   self._running = false
   self._wm = WindowManager:new()
   return self

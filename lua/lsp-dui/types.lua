@@ -1,7 +1,13 @@
 ---@alias WindowType "line"|"buffer" Información de diagnóstico por línea o por buffer
 ---@alias WindowOrder "category"|"lines" Agrupación de diagnósticos por categoría o por línea
 
---- Options para configurar el plugin
+
+-- DuiApp módulo principal del plugin
+---@class DuiAppModule
+---@field setup fun(args: DuiAppOpts?): nil Función para configurar el plugin
+---@field app DuiApp Instancia de la aplicación
+
+-- Options para configurar el plugin
 ---@class DuiAppOpts
 ---@field order WindowOrder Cómo agrupar diagnósticos
 
