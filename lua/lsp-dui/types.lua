@@ -16,6 +16,7 @@
 ---@field is_running fun(self: DuiApp): boolean Devuelve true si la aplicación está en ejecución
 ---@field start fun(self: DuiApp): nil Inicia la aplicación
 ---@field stop fun(self: DuiApp): nil Detiene la aplicación
+---@field test fun(self: DuiApp): string Función de prueba para la aplicación
 ---@field _opts DuiAppOpts Opciones de configuración
 ---@field _running boolean Indica si la aplicación está en ejecución
 ---@field _wm WindowManager Instancia del gestor de ventanas
@@ -57,3 +58,4 @@
 ---@field delete_window fun(self: WindowManager, bufid: number): nil Elimina una ventana registrada para un buffer dado
 ---@field _window_closed_handler fun(winid: number, bufid: number): nil Función manejadora para el cierre de ventanas
 ---@field _running boolean Indica si el gestor de ventanas está en ejecución
+

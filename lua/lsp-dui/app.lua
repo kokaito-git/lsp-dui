@@ -81,4 +81,9 @@ function DuiApp:stop()
   self._running = false
 end
 
+function DuiApp:test()
+  vim.notify("LSP Diagnostics UI test function called.", vim.log.levels.ERROR)
+  return self._opts.order
+end
+
 return DuiApp
