@@ -4,6 +4,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Create doc folder
+        run: mkdir -p doc
+
       - name: panvimdoc
         uses: kdheepak/panvimdoc@main
         with:
