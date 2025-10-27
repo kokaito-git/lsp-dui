@@ -1,3 +1,10 @@
+name: Generate docs
+
+on:
+  push:
+    branches:
+      - main
+
 jobs:
   docs:
     runs-on: ubuntu-latest
