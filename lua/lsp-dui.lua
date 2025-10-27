@@ -4,7 +4,7 @@ local App = require "lsp-dui.app"
 ---@class DuiAppModule
 local M = {}
 
----@param opts DuiAppOpts?
+---@param opts DuiAppEntryOpts?
 M.setup = function(opts)
   M.app = App:new(opts)
 end

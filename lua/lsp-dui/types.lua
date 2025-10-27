@@ -4,19 +4,22 @@
 
 -- DuiApp módulo principal del plugin
 ---@class DuiAppModule
----@field setup fun(args: DuiAppOpts?): nil Función para configurar el plugin
+---@field setup fun(args: DuiAppEntryOpts?): nil Función para configurar el plugin
 ---@field app DuiApp Instancia de la aplicación
 
 -- Options para configurar el plugin
----@class DuiAppOpts
+---@class DuiAppEntryOpts
 ---@field order? WindowOrder Cómo agrupar diagnósticos
 
+---@class DuiAppOpts
+---@field order WindowOrder Cómo agrupar diagnósticos
+
 ---@class DuiApp
----@field new fun(self: DuiApp, opts: DuiAppOpts?): DuiApp
+---@field new fun(self: DuiApp, opts: DuiAppEntryOpts?): DuiApp
 ---@field is_running fun(self: DuiApp): boolean Devuelve true si la aplicación está en ejecución
 ---@field start fun(self: DuiApp): nil Inicia la aplicación
 ---@field stop fun(self: DuiApp): nil Detiene la aplicación
----@field test fun(self: DuiApp): string Función de prueba para la aplicación
+---@field get_opts fun(self: DuiApp): DuiAppOpts Función de prueba para la aplicación
 ---@field _opts DuiAppOpts Opciones de configuración
 ---@field _running boolean Indica si la aplicación está en ejecución
 ---@field _wm WindowManager Instancia del gestor de ventanas

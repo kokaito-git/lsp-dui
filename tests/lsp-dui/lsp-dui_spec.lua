@@ -1,19 +1,14 @@
 -- lsp-dui_spec.lua
 local plugin = require "lsp-dui"
 
----@type fun(desc: string, fn: fun())
-local describe
----@type fun(desc: string, fn: fun())
-local it
-
 describe("setup", function()
   it("works with default", function()
     plugin.setup {}
-    assert(plugin.app:test() == "Hello!", "my first function with param = Hello!")
+    assert(plugin.app:get_opts().order == "category", "my first function with order = lines!")
   end)
 
   it("works with custom var", function()
-    plugin.setup { order = "category" }
-    assert(plugin.app:test() == "custom", "my first function with param = custom")
+    plugin.setup { order = "lines" }
+    assert(plugin.app:get_opts().order == "lines", "my first function with order = lines")
   end)
 end)
