@@ -1,7 +1,6 @@
 ---@alias WindowType "line"|"buffer" Información de diagnóstico por línea o por buffer
 ---@alias WindowOrder "category"|"lines" Agrupación de diagnósticos por categoría o por línea
 
-
 -- DuiApp módulo principal del plugin
 ---@class DuiAppModule
 ---@field setup fun(args: DuiAppEntryOpts?): nil Función para configurar el plugin
@@ -61,4 +60,3 @@
 ---@field delete_window fun(self: WindowManager, bufid: number): nil Elimina una ventana registrada para un buffer dado
 ---@field _window_closed_handler fun(winid: number, bufid: number): nil Función manejadora para el cierre de ventanas
 ---@field _running boolean Indica si el gestor de ventanas está en ejecución
-
