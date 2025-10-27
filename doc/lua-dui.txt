@@ -27,6 +27,7 @@ Add this to your plugins/init.lua file:
 >lua
     {
         "kokaito-git/lsp-dui",
+        lazy = false,
         opts = {
             order = "category", -- Order diagnostics by 'line' or 'category'
         }
