@@ -1,12 +1,21 @@
 -- window.lua
----@class Window
-local Window = {}
-Window.__index = Window
+local Shared = require "lsp-dui.shared"
 
-function Window:new(opts)
-  self = setmetatable({}, Window)
+---@class Window
+local Window = { name = "Window" }
+Window.__index = Window
+-- Prevent modification of properties by accident
+Window.__newindex = function(self, key, value)
+  Shared.bad_assignment_handler(self, self.name, key, value)
+end
+-- Prevent access to the metatable
+Window.__metatable = false
+
+function Window.new(opts)
+  ---@class Window
+  local o = setmetatable({}, Window)
   -- Aquí iría la implementación del constructor
-  return self
+  return o
 end
 
 function Window:get_orig_bufid()

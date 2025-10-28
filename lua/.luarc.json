@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
-  "runtime.version": "Lua 5.3",
+  "runtime.version": "Lua 5.4",
   "workspace.library": [
     "${workspaceFolder}",
     "lua/?.lua",
@@ -10,10 +10,14 @@
     "~/.local/share/nvim/lazy/ui/nvchad_types",
     "~/.local/share/nvim/lazy/lazy.nvim/lua/lazy",
     "~/.local/share/nvim/lazy/NvChad/lua",
-    "~/.local/share/nvim/lazy/plenary.nvim/lua"
+    "~/.local/share/nvim/lazy/plenary.nvim/lua",
+    "${3rd}/luv/library"
   ],
   "diagnostics.globals": ["vim", "describe", "it", "before_each", "after_each"],
   "diagnostics.enable": true,
   "workspace.maxPreload": 200000,
-  "workspace.preloadFileSize": 10000
+  "workspace.preloadFileSize": 10000,
+    "diagnostics.disable": [
+        "unused-local"
+    ]
 }

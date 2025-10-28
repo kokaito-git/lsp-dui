@@ -1,25 +1,40 @@
 -- main module file
+local Shared = require "lsp-dui.shared"
 local App = require "lsp-dui.app"
+local Constants = require "lsp-dui.constants"
 
----@class DuiAppModule
-local M = {}
+local _app = App:new()
 
----@param opts DuiAppEntryOpts?
-M.setup = function(opts)
-  M.app = App:new(opts)
-  M.app:start()
-end
-
--- Metatable. Si no se definen opts = ... entonces setup() no es invocado automáticamente
--- por este motivo hacemos que al tratar de acceder a M.app se invoque setup() si es que
--- M.app no existe aún.
-setmetatable(M, {
-  __index = function(table, key)
-    if key == "app" and not rawget(table, "app") then
-      M.setup() -- Crea M.app con opciones por defecto
+---@class DuiCoreModule
+---@field setup fun(opts?: DuiAppEntryOpts): any
+local M = setmetatable({
+  ---@param opts DuiAppEntryOpts?
+  setup = function(opts)
+    if _app:is_running() then
+      _app:stop()
     end
-    return rawget(table, key)
+    _app:start(opts)
+    return _app
   end,
+}, {
+  __index = function(self, key)
+    if key == "app" then
+      if not _app:is_running() then
+        -- usar rawget para evitar metamétodos al invocar setup
+        local setup = rawget(self, "setup")
+        setup()
+      end
+      return _app
+    end
+    return rawget(self, key)
+  end,
+
+  __newindex = function(self, key, value)
+    Shared.bad_assignment_handler(self, Constants.CORE_MODULE_NAME, key, value)
+  end,
+
+  -- oculta/bloquea la metatabla a consumidores del módulo
+  __metatable = false,
 })
 
 return M

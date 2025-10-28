@@ -1,4 +1,4 @@
-local C = require "lsp-dui.constants"
+local Constants = require "lsp-dui.constants"
 
 local M = {}
 
@@ -7,8 +7,8 @@ local M = {}
 ---@return DuiAppOpts
 local function _read_opts(opts)
   -- Si no se pasan opciones, usar las por defecto
-  if not opts then
-    return C.DEFAULT_OPTS
+  if not opts or vim.tbl_isempty(opts) then
+    return Constants.DEFAULT_OPTS
   end
 
   local validators = {
@@ -25,8 +25,8 @@ local function _read_opts(opts)
   -- Acumulamos errores y corregimos opciones inválidas
   for k, validator in pairs(validators) do
     if not validator(opts[k]) then
-      table.insert(errors, string.format("%s=%s (defaulted to: %s)", k, tostring(opts[k]), tostring(C.DEFAULT_OPTS[k])))
-      opts[k] = C.DEFAULT_OPTS[k]
+      table.insert(errors, string.format("%s=%s (defaulted to: %s)", k, tostring(opts[k]), tostring(Constants.DEFAULT_OPTS[k])))
+      opts[k] = Constants.DEFAULT_OPTS[k]
     end
   end
 
@@ -38,7 +38,7 @@ local function _read_opts(opts)
   end
 
   -- Devolver opciones posiblemente corregidas aplicando las faltantes por defecto
-  return vim.tbl_deep_extend("force", C.DEFAULT_OPTS, opts)
+  return vim.tbl_deep_extend("force", Constants.DEFAULT_OPTS, opts)
 end
 
 M._read_opts = _read_opts

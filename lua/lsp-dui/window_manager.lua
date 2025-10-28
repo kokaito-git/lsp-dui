@@ -1,13 +1,22 @@
 -- window_manager.lua
----@class WindowManager
-local WindowManager = {}
-WindowManager.__index = WindowManager
+local Shared = require "lsp-dui.shared"
 
-function WindowManager:new()
-  self = setmetatable({}, WindowManager)
+---@class WindowManager
+local WindowManager = { name = "WindowManager" }
+WindowManager.__index = WindowManager
+-- Prevent modification of properties by accident
+WindowManager.__newindex = function(self, key, value)
+  Shared.bad_assignment_handler(self, self.name, key, value)
+end
+-- Prevent access to the metatable
+WindowManager.__metatable = false
+
+function WindowManager.new()
+  ---@class WindowManager
+  local o = setmetatable({}, WindowManager)
   -- Aquí iría la implementación del constructor
-  self._running = false
-  return self
+  o._running = false
+  return o
 end
 
 function WindowManager:is_running()
@@ -31,10 +40,6 @@ function WindowManager:stop()
   end
   -- Aquí iría la implementación para detener el gestor de ventanas
   self._running = false
-end
-
-function WindowManager:clean()
-  -- Aquí iría la implementación para limpiar recursos
 end
 
 return WindowManager
