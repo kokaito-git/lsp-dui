@@ -11,7 +11,7 @@ end
 -- Prevent access to the metatable
 WindowManager.__metatable = false
 
-function WindowManager.new()
+function WindowManager.new(opts)
   ---@class WindowManager
   local o = setmetatable({}, WindowManager)
   -- Aquí iría la implementación del constructor

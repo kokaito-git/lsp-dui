@@ -6,9 +6,9 @@ local Constants = require "lsp-dui.constants"
 local _app = App:new()
 
 ---@class DuiCoreModule
----@field setup fun(opts?: DuiAppEntryOpts): any
+---@field setup fun(opts?: DuiAppOpts): any
 local M = setmetatable({
-  ---@param opts DuiAppEntryOpts?
+  ---@param opts DuiAppOpts?
   setup = function(opts)
     if _app:is_running() then
       _app:stop()
@@ -36,5 +36,7 @@ local M = setmetatable({
   -- oculta/bloquea la metatabla a consumidores del módulo
   __metatable = false,
 })
+
+local app = M.setup()
 
 return M

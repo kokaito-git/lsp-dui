@@ -1,5 +1,6 @@
 -- window.lua
 local Shared = require "lsp-dui.shared"
+local WindowIDPackage = require "lsp-dui.window_id_package"
 
 ---@class Window
 local Window = { name = "Window" }
@@ -11,35 +12,39 @@ end
 -- Prevent access to the metatable
 Window.__metatable = false
 
-function Window.new(opts)
+function Window.new(orig_buf, orig_win, opts)
   ---@class Window
   local o = setmetatable({}, Window)
   -- Aquí iría la implementación del constructor
   return o
 end
 
-function Window:get_orig_bufid()
-  -- Aquí iría la implementación para obtener el buffer original
+function Window:orig_buf()
+  -- Aquí iría la implementación del método orig_buf
 end
 
-function Window:get_orig_winid()
-  -- Aquí iría la implementación para obtener la ventana original
+function Window:orig_win()
+  -- Aquí iría la implementación del método orig_win
 end
 
-function Window:get_bufid()
-  -- Aquí iría la implementación para obtener el buffer asociado
+function Window:buf()
+  -- Aquí iría la implementación del método buf
 end
 
-function Window:get_winid()
-  -- Aquí iría la implementación para obtener la ventana asociada
+function Window:win()
+  -- Aquí iría la implementación del método win
 end
 
-function Window:get_wintype()
-  -- Aquí iría la implementación para obtener el tipo de ventana
+function Window:winpkg()
+  -- Aquí iría la implementación del método winpkg
 end
 
-function Window:get_order()
-  -- Aquí iría la implementación para obtener el orden de agrupación
+function Window:wintype()
+  -- Aquí iría la implementación del método type
+end
+
+function Window:winorder()
+  -- Aquí iría la implementación del método order
 end
 
 return Window

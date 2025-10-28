@@ -6,7 +6,7 @@ M.PLUGIN_SHORT = "lsp-dui"
 M.CORE_MODULE_NAME = "DuiCoreModule"
 
 -- Opciones por defecto
----@type DuiAppOpts
+---@type DuiAppInternalOpts
 M.DEFAULT_OPTS = { order = "category" }
 
 return M

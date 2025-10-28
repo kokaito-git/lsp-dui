@@ -53,7 +53,7 @@ function DuiApp:restart(opts)
   self:start(opts)
 end
 
-function DuiApp:get_opts()
+function DuiApp:opts()
   return vim.deepcopy(self._opts)
 end
 

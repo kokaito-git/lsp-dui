@@ -3,8 +3,8 @@ local Constants = require "lsp-dui.constants"
 local M = {}
 
 -- Lee y valida las opciones pasadas al constructor
----@param opts DuiAppEntryOpts?
----@return DuiAppOpts
+---@param opts DuiAppOpts?
+---@return DuiAppInternalOpts
 local function _read_opts(opts)
   -- Si no se pasan opciones, usar las por defecto
   if not opts or vim.tbl_isempty(opts) then
