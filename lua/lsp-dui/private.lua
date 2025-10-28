@@ -25,14 +25,18 @@ local function _read_opts(opts)
   -- Acumulamos errores y corregimos opciones inválidas
   for k, validator in pairs(validators) do
     if not validator(opts[k]) then
-      table.insert(errors, string.format("%s=%s (defaulted to: %s)", k, tostring(opts[k]), tostring(Constants.DEFAULT_OPTS[k])))
+      table.insert(
+        errors,
+        string.format("%s=%s (defaulted to: %s)", k, tostring(opts[k]), tostring(Constants.DEFAULT_OPTS[k]))
+      )
       opts[k] = Constants.DEFAULT_OPTS[k]
     end
   end
 
   if #errors > 0 then
     vim.notify(
-      "Invalid lsp-diagnostics-ui options detected, we're going to default them:\n\t" .. table.concat(errors, "\n\t"),
+      "Invalid lsp-diagnostics-ui options detected, we're going to default them:\n\t"
+        .. table.concat(errors, "\n\t"),
       vim.log.levels.WARN
     )
   end

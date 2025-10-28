@@ -24,7 +24,6 @@ end
 -- Prevent access to the metatable
 WindowIDPackage.__metatable = false
 
-
 function WindowIDPackage.new(orig_buf, orig_win, buf, win)
   ---@class WindowIDPackage
   local o = setmetatable({}, WindowIDPackage)
