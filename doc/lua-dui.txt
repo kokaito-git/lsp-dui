@@ -1,4 +1,4 @@
-*lua-dui.txt*         For Neovim >= 0.8.0         Last change: 2025 October 27
+*lua-dui.txt*         For Neovim >= 0.8.0         Last change: 2025 October 28
 
 ==============================================================================
 Table of Contents                                  *lua-dui-table-of-contents*
