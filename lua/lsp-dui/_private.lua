@@ -1,10 +1,11 @@
 local Constants = require "lsp-dui.constants"
 
+---@class LDPrivateModule
 local M = {}
 
 -- Lee y valida las opciones pasadas al constructor
----@param opts DuiAppOpts?
----@return DuiAppInternalOpts
+---@param opts LDPluginOpts?
+---@return LDInternalPluginOpts
 local function _read_opts(opts)
   -- Si no se pasan opciones, usar las por defecto
   if not opts or vim.tbl_isempty(opts) then
@@ -14,22 +15,34 @@ local function _read_opts(opts)
   local validators = {
     ---@param v string
     ---@return boolean
-    order = function(v)
+    default_type = function(v)
+      return v == "buffer" or v == "line"
+    end,
+    default_order = function(v)
       return v == "category" or v == "lines"
+    end,
+    default_autofocus = function(v)
+      return type(v) == "boolean"
     end,
   }
 
   ---@type table<string, string>
   local errors = {}
+  local defaulted = vim.tbl_deep_extend("force", Constants.DEFAULT_OPTS, opts)
 
   -- Acumulamos errores y corregimos opciones inválidas
   for k, validator in pairs(validators) do
-    if not validator(opts[k]) then
+    if not validator(defaulted[k]) then
       table.insert(
         errors,
-        string.format("%s=%s (defaulted to: %s)", k, tostring(opts[k]), tostring(Constants.DEFAULT_OPTS[k]))
+        string.format(
+          "%s=%s (defaulted to: %s)",
+          k,
+          tostring(defaulted[k]),
+          tostring(Constants.DEFAULT_OPTS[k])
+        )
       )
-      opts[k] = Constants.DEFAULT_OPTS[k]
+      defaulted[k] = Constants.DEFAULT_OPTS[k]
     end
   end
 
@@ -42,7 +55,7 @@ local function _read_opts(opts)
   end
 
   -- Devolver opciones posiblemente corregidas aplicando las faltantes por defecto
-  return vim.tbl_deep_extend("force", Constants.DEFAULT_OPTS, opts)
+  return defaulted
 end
 
 M._read_opts = _read_opts

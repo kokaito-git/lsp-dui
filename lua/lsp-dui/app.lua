@@ -1,33 +1,38 @@
--- dui_app.lua
--- local M = {}
-local WindowManager = require "lsp-dui.window_manager"
-local Private = require "lsp-dui.private"
+local LDWindowManager = require "lsp-dui.window_manager"
+local Private = require "lsp-dui._private"
 local Shared = require "lsp-dui.shared"
+local Constants = require "lsp-dui.constants"
 
----@class DuiApp
-local DuiApp = { name = "DuiApp" }
-DuiApp.__index = DuiApp
+---@class LDApp
+local LDApp = {
+  name = "LDApp",
+}
+LDApp.__index = LDApp
 -- Prevent modification of properties by accident
-DuiApp.__newindex = function(self, key, value)
+LDApp.__newindex = function(self, key, value)
   Shared.bad_assignment_handler(self, self.name, key, value)
 end
 -- Prevent access to the metatable
-DuiApp.__metatable = false
+LDApp.__metatable = false
 
-function DuiApp.new()
-  ---@class DuiApp
-  local o = setmetatable({}, DuiApp)
+function LDApp.new()
+  ---@class LDApp
+  local o = setmetatable({}, LDApp)
   o._opts = nil
   o._running = false
-  o._wm = WindowManager.new()
+  o._wm = LDWindowManager.new()
   return o
 end
 
-function DuiApp:is_running()
+function LDApp:version()
+  return Constants.PLUGIN_VERSION
+end
+
+function LDApp:is_running()
   return self._running
 end
 
-function DuiApp:start(opts)
+function LDApp:start(opts)
   if self._running then
     vim.notify("LSP Diagnostics UI is already running.", vim.log.levels.WARN)
     return
@@ -37,7 +42,7 @@ function DuiApp:start(opts)
   self._wm:start()
 end
 
-function DuiApp:stop()
+function LDApp:stop()
   if not self._running then
     vim.notify("LSP Diagnostics UI is not running.", vim.log.levels.WARN)
     return
@@ -47,14 +52,31 @@ function DuiApp:stop()
   self._running = false
 end
 
-function DuiApp:restart(opts)
-  vim.notify("Restarting LSP Diagnostics UI...", vim.log.levels.INFO)
+function LDApp:restart()
+  if not self._running then
+    vim.notify("LSP Diagnostics UI is not running.", vim.log.levels.WARN)
+    return
+  end
   self:stop()
+  local opts = self:opts()
+  ---@diagnostic disable-next-line: param-type-mismatch
   self:start(opts)
 end
 
-function DuiApp:opts()
+function LDApp:opts()
+  if not self._running then
+    vim.notify("LSP Diagnostics UI is not running.", vim.log.levels.WARN)
+    error "Cannot get options when the application is not running."
+  end
   return vim.deepcopy(self._opts)
 end
 
-return DuiApp
+function LDApp:request_window(opts)
+  if not self._running then
+    vim.notify("LSP Diagnostics UI is not running.", vim.log.levels.WARN)
+    return nil
+  end
+  return self._wm:request_window(opts)
+end
+
+return LDApp

@@ -1,42 +1,47 @@
--- main module file
+-- TODO: Mañana comprobar api, app, y el modulo principal para hacer que encaje aún mejor
+-- por ejemplo evitando usar if key == "api" aquí y creando una propiedad en LDApi (si es posible)
+-- Seguro que alguna mejora se puede hacer.
 local Shared = require "lsp-dui.shared"
+local LDApi = require "lsp-dui.api"
 local App = require "lsp-dui.app"
-local Constants = require "lsp-dui.constants"
 
-local _app = App:new()
-
----@class DuiCoreModule
----@field setup fun(opts?: DuiAppOpts): any
-local M = setmetatable({
-  ---@param opts DuiAppOpts?
-  setup = function(opts)
-    if _app:is_running() then
-      _app:stop()
+---@class LDCoreModule
+local LDCoreModule = {
+  name = "LDCoreModule",
+  _app = App.new(LDApi),
+}
+LDCoreModule.__index = function(self, key)
+  if key == "api" then
+    if not self._app:is_running() then
+      -- usar rawget para evitar metamétodos al invocar setup
+      local setup = rawget(self, "setup")
+      setup()
     end
-    _app:start(opts)
-    return _app
-  end,
-}, {
-  __index = function(self, key)
-    if key == "app" then
-      if not _app:is_running() then
-        -- usar rawget para evitar metamétodos al invocar setup
-        local setup = rawget(self, "setup")
-        setup()
-      end
-      return _app
-    end
-    return rawget(self, key)
-  end,
+    return LDApi
+  end
+  return rawget(self, key)
+end
+-- Prevent modification of properties by accident
+LDCoreModule.__newindex = function(self, key, value)
+  Shared.bad_assignment_handler(self, self.name, key, value)
+end
+-- Prevent access to the metatable
+LDCoreModule.__metatable = false
 
-  __newindex = function(self, key, value)
-    Shared.bad_assignment_handler(self, Constants.CORE_MODULE_NAME, key, value)
-  end,
+function LDCoreModule.setup(opts)
+  if LDCoreModule._app:is_running() then
+    LDCoreModule._app:stop()
+  else
+    LDApi._attach(LDCoreModule._app)
+  end
+  LDCoreModule._app:start(opts)
+  return LDCoreModule._app
+end
 
-  -- oculta/bloquea la metatabla a consumidores del módulo
-  __metatable = false,
-})
+function LDCoreModule.version()
+  return LDCoreModule.api.version()
+end
 
-local app = M.setup()
-
+local M = setmetatable(LDCoreModule, LDCoreModule) -- Module is ready here
+-- ... additional module operations can be added here if needed
 return M

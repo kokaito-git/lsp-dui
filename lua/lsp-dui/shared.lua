@@ -1,3 +1,4 @@
+---@class LDSharedModule
 local M = {}
 
 -- Reports an attempt to modify a read-only property.
@@ -37,6 +38,38 @@ function M.bad_assignment_handler(class, cname, prop, value, allowed_props)
     end
   end
   rawset(class, prop, value) -- Allow setting private properties
+end
+
+--- Función que acepta todos los number que le pases y genera una key separada por ':'
+--- @param ... number Valores para generar la key
+--- @return string
+function M.generate_key(...)
+  local args = { ... }
+  local key_parts = {}
+  for _, v in ipairs(args) do
+    table.insert(key_parts, tostring(v))
+  end
+  return table.concat(key_parts, ":")
+end
+
+--- Función inversa a `generate_key`, devuelve una tabla con los números
+--- @param key string Key generada por `generate_key`
+--- @return number[]
+function M.parse_key(key)
+  local parts = vim.split(key, ":")
+  local numbers = {}
+  for _, part in ipairs(parts) do
+    table.insert(numbers, tonumber(part))
+  end
+  return numbers
+end
+
+---@generic T
+---@param t T[] Table of elements of type T
+---@return ... T Unpacks the elements of the table
+function M.table_unpack(t)
+  local _unpack = unpack or table.unpack
+  return _unpack(t)
 end
 
 return M

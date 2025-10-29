@@ -1,15 +1,20 @@
 -- lsp-dui_spec.lua
-local plugin = require "lsp-dui"
+local plugin = require("lsp-dui")
+local api = plugin.api
 
 describe("setup", function()
   it("works with default opts.order (`category`)", function()
-    plugin.setup {}
-    assert(plugin.app:opts().order == "category", "my first function with order = lines!")
+    assert(api.opts().default_order == "category", "my first function with order = lines!")
   end)
 
   it("works with opts.order == `lines`", function()
-    plugin.setup { order = "lines" }
-    assert(plugin.app:opts().order == "lines", "my first function with order = lines")
+    ---@class LDPluginOpts
+    local settings = { default_order = "lines" }
+    plugin.setup(settings)
+    assert(api.opts().default_order == "lines", "my first function with order = lines")
+  end)
+
+  it("just request window", function()
+    api.request_window()
   end)
 end)
-

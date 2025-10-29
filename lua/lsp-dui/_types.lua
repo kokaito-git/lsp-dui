@@ -1,0 +1,171 @@
+--- Información de diagnóstico por línea o por buffer
+---@alias LDWindowType "line"|"buffer"
+
+--- Agrupación de diagnósticos por categoría o por línea
+---@alias LDWindowOrder "category"|"lines"
+
+--- DuiApp módulo principal del plugin
+---@class LDCoreModule
+--- Nombre del módulo
+---@field name string
+--- Versión del plugin
+---@field version fun(): string
+--- Función para configurar el plugin. No es necesario llamarla, solo hay que definir los
+--- opts en plugins/init.lua o init.vim, etc.
+---@field setup fun(opts: LDPluginOpts?): LDApp
+--- Instancia de la aplicación DuiApp. Puedes acceder a ella directamente para manipularla.
+---@field api LDApiModule
+
+---@class LDApiModule
+--- Nombre del módulo
+---@field name string
+--- Devuelve la versión del plugin
+---@field version fun(): string
+--- Módulo compartido (propiedad de clase)
+---@field shared LDSharedModule
+--- Constantes del plugin (propiedad de clase)
+---@field constants LDConstantsModule
+--- Devuelve true si la aplicación está en ejecución
+---@field is_running fun(): boolean
+--- Inicia la aplicación (recibe las opciones indicadas en setup)
+--- Error: Si la aplicación ya está en ejecución.
+---@field start fun(opts: LDPluginOpts?): nil
+--- Detiene la aplicación (limpia todos los recursos)
+--- Error: Si la aplicación no está en ejecución.
+---@field stop fun(): nil
+--- Reinicia la aplicación (conservando los settings actuales)
+--- Error: Si la aplicación no está en ejecución.
+---@field restart fun(): nil
+--- Devuelve una copia de las opciones actuales
+--- Error: Si la aplicación no está en ejecución.
+---@field opts fun(): LDInternalPluginOpts
+--- TERMINAR ESTOOOO  TODO:
+--- @field request_window fun(opts: LDRequestWindowOpts?): LDWindowIdPkg?
+
+--- Options para configurar el plugin
+---@class LDPluginOpts
+--- Tipo de ventana por defecto: por línea o por buffer (por defecto: "buffer")
+---@field default_type? LDWindowType
+--- Cómo agrupar diagnósticos por defecto: por categoría o por línea (por defecto: "category")
+---@field default_order? LDWindowOrder
+--- Modo de autofocus por defecto (por defecto: false)
+---@field default_autofocus? boolean
+
+--- Opciones internas de la aplicación
+---@class LDInternalPluginOpts
+--- Tipo de ventana por defecto: por línea o por buffer (por defecto: "buffer")
+---@field default_type LDWindowType
+--- Cómo agrupar diagnósticos por defecto: por categoría o por línea (por defecto: "category")
+---@field default_order LDWindowOrder
+--- Modo de autofocus por defecto (por defecto: false)
+---@field default_autofocus boolean
+
+--- Opciones para solicitar la apertura de una ventana diagnóstica
+---@class LDRequestWindowOpts
+--- Permite especificar ventana objetivo (si no se especifica, se usa la ventana actual)
+--- Error: Si el objetivo es una ventana inválida o una de nuestras ventanas diagnósticas.
+--- @field target_win? number
+--- Permite especificar buffer objetivo (si no se especifica, se usa el buffer de la ventana objetivo)
+--- @field autofocus? boolean
+--- Permite especificar el tipo de ventana (si no se especifica, se usa el tipo por defecto)
+--- @field type? LDWindowType
+--- Permite especificar el orden de agrupación (si no se especifica, se usa el orden por defecto)
+--- @field order? LDWindowOrder
+
+--- DuiApp representa la aplicación principal del plugin. Gestiona el ciclo de vida y ofrece
+--- una interfaz para interactuar con el plugin, como reiniciarlo, iniciar acciones, etc.
+---@class LDApp
+--- Crea una nueva instancia de DuiApp (se hace automáticamente)
+---@field new fun(): LDApp
+--- Devuelve la versión del plugin
+---@field version fun(self: LDApp): string
+--- Devuelve true si la aplicación está en ejecución
+---@field is_running fun(self: LDApp): boolean
+--- Inicia la aplicación (recibe las opciones indicadas en setup)
+--- Error: Si la aplicación ya está en ejecución.
+---@field start fun(self: LDApp, opts: LDPluginOpts?): nil
+--- Detiene la aplicación (limpia todos los recursos)
+--- Error: Si la aplicación no está en ejecución.
+---@field stop fun(self: LDApp): nil
+--- Reinicia la aplicación (conservando los settings actuales)
+--- Error: Si la aplicación no está en ejecución.
+---@field restart fun(self: LDApp): nil
+--- Devuelve una copia de las opciones actuales
+--- Error: Si la aplicación no está en ejecución.
+---@field opts fun(self: LDApp): LDInternalPluginOpts
+--- TERMINAR ESTOOOO  TODO:
+--- @field request_window fun(self: LDApp, opts: LDRequestWindowOpts?): LDWindowIdPkg?
+
+---@class LDWindowRegistryOpts
+
+--- Registro de ventanas. Usada por WindowManager para gestionar las ventanas abiertas.
+---@class LDWindowRegistry
+--- Crea una nueva instancia de WindowRegistry
+---@field new fun(opts: LDWindowRegistryOpts?): LDWindowRegistry
+--- Devuelve true si hay una ventana registrada para el buffer original dado
+---@field has fun(self: LDWindowRegistry, orig_buf: number): boolean
+--- Devuelve la ventana registrada para el buffer original dado
+---@field get fun(self: LDWindowRegistry, orig_buf: number): LDWindow|nil
+--- Registra una ventana en el registro de ventanas
+--- Error: Si ya hay una ventana registrada para el buffer original dado
+---@field register fun(self: LDWindowRegistry, window: LDWindow): nil
+--- Elimina una ventana del registro de ventanas.
+---@field unregister fun(self: LDWindowRegistry, orig_buf: number): nil
+--- Elimina todas las ventanas del registro de ventanas
+---@field clear fun(self: LDWindowRegistry): nil
+
+---@class LDWindowManagerOpts
+
+---@class LDWindowManager
+--- Crea una nueva instancia de WindowManager
+---@field new fun(opts: LDWindowManagerOpts?): LDWindowManager
+--- Devuelve true si el gestor de ventanas está en ejecución
+---@field is_running fun(self: LDWindowManager): boolean
+--- Inicia el gestor de ventanas
+---@field start fun(self: LDWindowManager): nil
+--- Detiene el gestor de ventanas
+---@field stop fun(self: LDWindowManager): nil
+---Solicita la apertura de una ventana diagnóstica o la obtención de la ventana existente
+---@field request_window fun(self: LDWindowManager, opts: LDRequestWindowOpts): LDWindowIdPkg?
+
+---@class LDWindowIdPkg
+--- Crea una nueva instancia de WindowIDPackage
+---@field new fun(orig_buf: number, orig_win: number, buf: number, win: number): LDWindowIdPkg
+--- Devuelve el número del buffer original
+---@field orig_buf fun(self: LDWindowIdPkg): number
+--- Devuelve el número de la ventana original
+---@field orig_win fun(self: LDWindowIdPkg): number
+--- Devuelve el número del buffer asociado
+---@field buf fun(self: LDWindowIdPkg): number
+--- Devuelve el número de la ventana asociada
+---@field win fun(self: LDWindowIdPkg): number
+
+--- Opciones para crear una ventana diagnóstica
+---@class LDWindowOpts
+--- Permite especificar ventana objetivo (si no se especifica, se usa la ventana actual)
+--- Error: Si el objetivo es una ventana inválida o una de nuestras ventanas diagnósticas.
+--- @field target_win number
+--- Permite especificar buffer objetivo (si no se especifica, se usa el buffer de la ventana objetivo)
+--- @field autofocus boolean
+--- Permite especificar el tipo de ventana (si no se especifica, se usa el tipo por defecto)
+--- @field type LDWindowType
+--- Permite especificar el orden de agrupación (si no se especifica, se usa el orden por defecto)
+--- @field order LDWindowOrder
+
+---@class LDWindow
+--- Crea una nueva instancia de Window
+---@field new fun(orig_buf: number, orig_win: number, opts: LDWindowOpts?): LDWindow|nil
+--- Devuelve el paquete de identificación de la ventana
+---@field idpkg fun(self: LDWindow): LDWindowIdPkg
+--- Devuelve el número del buffer original
+---@field orig_buf fun(self: LDWindow): number
+--- Devuelve el número de la ventana original
+---@field orig_win fun(self: LDWindow): number
+--- Devuelve el número del buffer asociado
+---@field buf fun(self: LDWindow): number
+--- Devuelve el número de la ventana asociada
+---@field win fun(self: LDWindow): number
+--- Devuelve el tipo de ventana
+---@field type fun(self: LDWindow): LDWindowType
+--- Devuelve el orden de agrupación de diagnósticos
+---@field order fun(self: LDWindow): LDWindowOrder
