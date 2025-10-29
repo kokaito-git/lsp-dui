@@ -1,47 +1,66 @@
--- TODO: Mañana comprobar api, app, y el modulo principal para hacer que encaje aún mejor
--- por ejemplo evitando usar if key == "api" aquí y creando una propiedad en LDApi (si es posible)
--- Seguro que alguna mejora se puede hacer.
-local Shared = require "lsp-dui.shared"
-local LDApi = require "lsp-dui.api"
-local App = require "lsp-dui.app"
+local App = require("lsp-dui.app").LDApp
+local api = require "lsp-dui.api"
+local shared = require "lsp-dui.shared"
 
 ---@class LDCoreModule
-local LDCoreModule = {
+local M = {
+  --- Nombre del módulo
   name = "LDCoreModule",
-  _app = App.new(LDApi),
+  ---note: placeholder to be able to comment the api property
+  ---@class LDApiModule
+  --- Instancia de la aplicación DuiApp. Puedes acceder a ella directamente para manipularla.
+  api = nil,
+  _app = App.new(),
 }
-LDCoreModule.__index = function(self, key)
+M.__index = function(self, key)
   if key == "api" then
     if not self._app:is_running() then
       -- usar rawget para evitar metamétodos al invocar setup
       local setup = rawget(self, "setup")
       setup()
     end
-    return LDApi
+    return api
   end
   return rawget(self, key)
 end
 -- Prevent modification of properties by accident
-LDCoreModule.__newindex = function(self, key, value)
-  Shared.bad_assignment_handler(self, self.name, key, value)
+M.__newindex = function(self, key, value)
+  shared.bad_assignment_handler(self, self.name, key, value)
 end
 -- Prevent access to the metatable
-LDCoreModule.__metatable = false
+M.__metatable = false
 
-function LDCoreModule.setup(opts)
-  if LDCoreModule._app:is_running() then
-    LDCoreModule._app:stop()
+--- Versión del plugin
+function M.version()
+  return api.version()
+end
+
+--- Función para re-configurar el plugin (si no vas a cambiar opciones no la llames)
+function M.setup(opts)
+  if M._app:is_running() then
+    M._app:stop()
   else
-    LDApi._attach(LDCoreModule._app)
+    api._attach(M._app) -- attach the app if not already attached
   end
-  LDCoreModule._app:start(opts)
-  return LDCoreModule._app
+  M._app:start(opts)
+  return M
 end
 
-function LDCoreModule.version()
-  return LDCoreModule.api.version()
+--- Función para reiniciar el plugin conservando los settigns actuales.
+function M.restart()
+  vim.notify("Restarting lsp-dui application...", vim.log.levels.INFO)
+  local opts = nil
+  if M._app:is_running() then
+    opts = M._app:opts()
+    M._app:stop()
+  else
+    api._attach(M._app) -- attach the app if not already attached
+  end
+  ---@diagnostic disable-next-line: param-type-mismatch
+  M._app:start(opts)
+  return M
 end
 
-local M = setmetatable(LDCoreModule, LDCoreModule) -- Module is ready here
+M = setmetatable(M, M) -- Module is ready here
 -- ... additional module operations can be added here if needed
 return M

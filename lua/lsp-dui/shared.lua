@@ -1,6 +1,8 @@
 ---@class LDSharedModule
 local M = {}
 
+M.name = "LDSharedModule"
+
 -- Reports an attempt to modify a read-only property.
 ---@param cname string The name of the class where the assignment was attempted.
 ---@param prop string The name of the property that was attempted to be modified.
@@ -68,8 +70,83 @@ end
 ---@param t T[] Table of elements of type T
 ---@return ... T Unpacks the elements of the table
 function M.table_unpack(t)
+  ---@diagnostic disable-next-line: deprecated
   local _unpack = unpack or table.unpack
   return _unpack(t)
+end
+
+---Normaliza el path cambiando \\ por /
+---En caso de que el path sea nulo o vacío o inválido, devuelve nil
+---@param path string El path a normalizar
+---@return string
+function M.normalize_path(path)
+  if type(path) ~= "string" then
+    error "Path must be a valid string"
+  end
+  -- Normalizar barras para Windows
+  path = path:gsub("\\", "/")
+  return path
+end
+
+---Acorta y normaliza el path cambiando \\ por / y acortando el home a ~
+---@param path string El path a acortar
+---@return string
+function M.shorten_path(path)
+  if type(path) ~= "string" then
+    error "Path must be a valid string"
+  end
+
+  local home = vim.loop.os_homedir()
+  if not home or home == "" then
+    return M.normalize_path(path)
+  end
+
+  -- Normalizar barras para Windows
+  home = M.normalize_path(home)
+  path = M.normalize_path(path)
+
+  if path:sub(1, #home) == home then
+    return "~" .. path:sub(#home + 1)
+  end
+
+  return path
+end
+
+--- Recorta y normaliza path dejando solo `depth` carpetas antes del archivo.
+--- @param path string El path a recortar
+--- @param depth number La cantidad de carpetas a mantener antes del archivo
+--- @return string
+function M.trim_path(path, depth)
+  if type(path) ~= "string" then
+    error "Path must be a valid string"
+  end
+
+  if type(depth) ~= "number" or depth < 0 then
+    error "Depth must be a non-negative number"
+  end
+
+  if path == "" then
+    return ""
+  end
+
+  path = path:gsub("\\", "/") -- Normalizar barras para Windows
+  -- trimempty para evitar partes vacías
+  -- Ejemplo: "/home/user/docs/file.txt"
+  -- Con trimempty = true, obtenemos {"home", "user", "docs", "file.txt"}
+  -- Sin trimempty, obtenemos {"", "home", "user", "docs", "file.txt"}
+  local parts = vim.split(path, "/", { trimempty = true })
+  local len = #parts
+  -- Si el path es más corto que la profundidad solicitada, devolver el path completo
+  if len <= depth + 1 then
+    return path
+  end
+  -- Construir el path recortado
+  local trimmed_parts = {}
+  for i = len - depth, len do
+    table.insert(trimmed_parts, parts[i])
+  end
+
+  return table.concat(trimmed_parts, "/")
 end
 
 return M

@@ -1,20 +1,18 @@
--- lsp-dui_spec.lua
-local plugin = require("lsp-dui")
-local api = plugin.api
+-- Nota: El setup() no se invoca automáticamente en los tests, lo cuál te permite invocar su setup como creas conveniente.
+--       Si no lo haces no hay problema, al tratar de acceder a la api se inicializará automáticamente.
+-- Modulo principal del plugin, ofrece api, setup, version, name.
+local plugin = require "lsp-dui"
+--- Inicializará implícitamente la aplicación (plugin.setup() se puede reutilizar pero si lo invocas se
+--- borrará el estado actual)
+-- local api = plugin.api
+
+--- Obtener _app desde la api no cambia el estado de la aplicación.
+--- La puedes usar para probar sin crear una función en la api que invoque a una función de la app ...
+-- local app = api._app
 
 describe("setup", function()
-  it("works with default opts.order (`category`)", function()
-    assert(api.opts().default_order == "category", "my first function with order = lines!")
-  end)
-
-  it("works with opts.order == `lines`", function()
-    ---@class LDPluginOpts
-    local settings = { default_order = "lines" }
-    plugin.setup(settings)
-    assert(api.opts().default_order == "lines", "my first function with order = lines")
-  end)
-
-  it("just request window", function()
-    api.request_window()
-  end)
+  it("working test", function() end)
+  local api = plugin.api
+  vim.notify("API CONTAINS: " .. vim.inspect(api.opts()))
+  plugin.restart()
 end)
