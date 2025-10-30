@@ -26,18 +26,19 @@ function M.make_str_set(list)
   return t
 end
 
----Reports an attempt to modify a read-only property.
----@param cname string The name of the class where the assignment was attempted.
----@param prop string The name of the property that was attempted to be modified.
----@param value any The value that was attempted to be assigned.
-function M.report_bad_assignement(cname, prop, value)
-  local msg = string.format(
-    "Attempt to modify read-only property '%s' of %s with value %s.",
-    prop,
-    cname,
-    vim.inspect(value)
-  )
-  error(debug.traceback(msg, 2), 0)
+---Default __index for classes: Traduce las llamadas de `miembro` a `_miembro`
+---con el fin de exponer propiedades de solo lectura.
+---@param class table The class table where the access was attempted.
+---@param cname string The name of the class where the access was attempted.
+---@param prop string The name of the property that was attempted to be accessed.
+---@param accesable_props? table<string, true> Optional set of unmodifiable property names.
+---@return any The value of the property.
+function M.accesable_props_handler(class, cname, prop, accesable_props)
+  if accesable_props and accesable_props[prop] then
+    local private_prop = "_" .. prop
+    return rawget(class, private_prop)
+  end
+  return rawget(class, prop)
 end
 
 ---Default __newindex for classes: prevents accidental property modifications.
@@ -47,11 +48,11 @@ end
 ---@param cname string The name of the class where the assignment was attempted.
 ---@param prop string The name of the property that was attempted to be modified.
 ---@param value any The value that was attempted to be assigned.
----@param allowed_props? string[] A list of property names that are allowed to be modified.
+---@param modifiable_props? table<string, true> Optional set of modifiable property names.
 ---@return nil
-function M.bad_assignment_handler(class, cname, prop, value, allowed_props)
+function M.bad_assignment_handler(class, cname, prop, value, modifiable_props)
   if not vim.startswith(prop, "_") then
-    if not (allowed_props and allowed_props[prop]) then
+    if not (modifiable_props and modifiable_props[prop]) then
       local msg = string.format(
         "Attempt to modify read-only property '%s' of %s with value %s.",
         prop,
@@ -180,7 +181,7 @@ end
 M.__index = M
 ---Prevent modification of module properties by accident
 M.__newindex = function(self, key, value)
-  M.bad_assignment_handler(self, self.name, key, value)
+  M.bad_assignment_handler(self, M.name, key, value)
 end
 ---Prevent access to the module metatable
 M.__metatable = false

@@ -1,6 +1,6 @@
 local Shared = require "lsp-dui.shared"
 
-local allowed_properties = Shared.make_str_set { "cadena" }
+local accesable_props = Shared.make_str_set { "cadena" }
 
 --- --------------------------------------------------------------
 --- Module Definition
@@ -26,7 +26,7 @@ local C = { name = "LDProvider" }
 function C.new()
   ---@class LDProvider
   local o = setmetatable({}, C)
-  o.cadena = "asdal"
+  o._cadena = "pepe"
   return o
 end
 
@@ -35,10 +35,12 @@ end
 --- --------------------------------------------------------------
 
 ---Metatable to control class property access
-C.__index = C
+C.__index = function(self, key)
+  return Shared.accesable_props_handler(self, C.name, key, accesable_props)
+end
 ---Prevent modification of class properties by accident
 C.__newindex = function(self, key, value)
-  Shared.bad_assignment_handler(self, self.name, key, value, allowed_properties)
+  Shared.bad_assignment_handler(self, C.name, key, value)
 end
 ---Prevent access to the class metatable
 C.__metatable = false
@@ -54,7 +56,7 @@ M.LDProvider = C
 M.__index = M
 ---Prevent modification of module properties by accident
 M.__newindex = function(self, key, value)
-  Shared.bad_assignment_handler(self, self.name, key, value)
+  Shared.bad_assignment_handler(self, M.name, key, value)
 end
 ---Prevent access to the module metatable
 M.__metatable = false

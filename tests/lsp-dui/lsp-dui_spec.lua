@@ -16,5 +16,5 @@ describe("setup", function()
   local app = api._app
   local provider = app:diagnostic_provider()
 
-  vim.notify("Provider inspect: " .. vim.inspect(provider))
+  vim.notify("cadena inicial: " .. provider.cadena)
 end)

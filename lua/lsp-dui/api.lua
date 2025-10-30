@@ -98,7 +98,7 @@ M.__index = function(self, key)
 end
 ---Prevent modification of module properties by accident
 M.__newindex = function(self, key, value)
-  Shared.bad_assignment_handler(self, self.name, key, value)
+  Shared.bad_assignment_handler(self, M.name, key, value)
 end
 ---Prevent access to the module metatable
 M.__metatable = false

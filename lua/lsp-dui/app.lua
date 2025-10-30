@@ -170,7 +170,7 @@ end
 C.__index = C
 ---Prevent modification of class properties by accident
 C.__newindex = function(self, key, value)
-  Shared.bad_assignment_handler(self, self.name, key, value)
+  Shared.bad_assignment_handler(self, C.name, key, value)
 end
 ---Prevent access to the class metatable
 C.__metatable = false
@@ -186,7 +186,7 @@ M.LDApp = C
 M.__index = M
 ---Prevent modification of module properties by accident
 M.__newindex = function(self, key, value)
-  Shared.bad_assignment_handler(self, self.name, key, value)
+  Shared.bad_assignment_handler(self, M.name, key, value)
 end
 ---Prevent access to the module metatable
 M.__metatable = false
