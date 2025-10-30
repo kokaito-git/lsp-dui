@@ -13,9 +13,8 @@ local plugin = require "lsp-dui"
 describe("setup", function()
   it("working test", function() end)
   local api = plugin.api
-  vim.notify("API CONTAINS: " .. vim.inspect(api.opts()))
-
   local app = api._app
-  vim.notify("APP IS RUNNING: " .. tostring(app:is_running()))
-  plugin.restart()
+  local provider = app:diagnostic_provider()
+
+  vim.notify("Provider inspect: " .. vim.inspect(provider))
 end)

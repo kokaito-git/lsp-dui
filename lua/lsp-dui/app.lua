@@ -157,10 +157,13 @@ function C:request_window(opts)
 end
 
 --TODO: Comentar esta función.
-function C:diagnostic_provider() end
+function C:diagnostic_provider()
+  local provider = LDProvider.new()
+  return provider
+end
 
 --- --------------------------------------------------------------
---- Metatable adjustments
+--- Class Metatable adjustments
 --- --------------------------------------------------------------
 
 ---Metatable to control class property access
@@ -171,8 +174,22 @@ C.__newindex = function(self, key, value)
 end
 ---Prevent access to the class metatable
 C.__metatable = false
----Assign the class to the module
+
+---Assign the class to the module (*)
 M.LDApp = C
----Class is ready here. Additional operations can be added if needed.
----Module is ready here. Additional module operations can be added if needed.
+
+--- --------------------------------------------------------------
+--- Module Metatable adjustments
+--- --------------------------------------------------------------
+
+---Metatable to control module property access
+M.__index = M
+---Prevent modification of module properties by accident
+M.__newindex = function(self, key, value)
+  Shared.bad_assignment_handler(self, self.name, key, value)
+end
+---Prevent access to the module metatable
+M.__metatable = false
+---Assign the module metatable
+M = setmetatable(M, M)
 return M

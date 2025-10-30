@@ -26,7 +26,7 @@ Add this to your plugins/init.lua file:
         "kokaito-git/lsp-dui",
         lazy = false,
         opts = {
-            order = "category", -- Order diagnostics by 'line' or 'category'
+            -- TODO: Opts are under development
         }
     }
 <

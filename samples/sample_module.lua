@@ -32,5 +32,4 @@ end
 M.__metatable = false
 ---Assign the module metatable
 M = setmetatable(M, M)
----Module is ready here. Additional module operations can be added if needed.
 return M

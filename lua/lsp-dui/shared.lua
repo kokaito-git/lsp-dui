@@ -15,6 +15,17 @@ M.name = "LDSharedModule"
 --- Public Module Functions
 --- --------------------------------------------------------------
 
+---Creates a set from a list of strings.
+---@param list string[]  Lista de strings
+---@return table<string, true>  Conjunto donde cada string es clave
+function M.make_str_set(list)
+  local t = {}
+  for _, v in ipairs(list) do
+    t[v] = true
+  end
+  return t
+end
+
 ---Reports an attempt to modify a read-only property.
 ---@param cname string The name of the class where the assignment was attempted.
 ---@param prop string The name of the property that was attempted to be modified.
@@ -40,7 +51,7 @@ end
 ---@return nil
 function M.bad_assignment_handler(class, cname, prop, value, allowed_props)
   if not vim.startswith(prop, "_") then
-    if not vim.tbl_contains(allowed_props or {}, prop) then
+    if not (allowed_props and allowed_props[prop]) then
       local msg = string.format(
         "Attempt to modify read-only property '%s' of %s with value %s.",
         prop,
@@ -175,5 +186,4 @@ end
 M.__metatable = false
 ---Assign the module metatable
 M = setmetatable(M, M)
----Module is ready here. Additional module operations can be added if needed.
 return M
