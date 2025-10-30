@@ -3,41 +3,40 @@ local Shared = require "lsp-dui.shared"
 ---@class LDApp
 local _app = nil
 
---- Módulo de la API pública del plugin LSP-DUI
---- Ofrece métodos para interactuar con la aplicación central del plugin.
+--- --------------------------------------------------------------
+--- Module definition
+--- --------------------------------------------------------------
+
+---Módulo de la API pública del plugin LSP-DUI Ofrece métodos para interactuar con la aplicación central
+---del plugin.
 ---@class LDApiModule
 local M = {
   ---Nombre del módulo (class property)
-  name = "LDApi",
+  name = "LDApiModule",
   ---Módulo compartido (class property)
   shared = Shared,
   ---Constantes del plugin (class property)
   constants = require "lsp-dui.constants",
+  ---External App instance reference (class property)
+  ---@class LDApp
+  _app = nil,
 }
--- Metatable to control property access
-M.__index = function(self, key)
-  if key == "_app" then
-    return _app -- retorna la variable local
-  end
-  return rawget(M, key) -- busca en M sin activar metatable
-end
--- Prevent modification of properties by accident
-M.__newindex = function(self, key, value)
-  Shared.bad_assignment_handler(self, self.name, key, value)
-end
--- Prevent access to the metatable
-M.__metatable = false
 
---- Attach the app instance to the API
---- @param app LDApp
+--- --------------------------------------------------------------
+--- Private Module Functions
+--- --------------------------------------------------------------
+
+---Grants the API module access to the application instance.
+---@param app LDApp
 function M._attach(app)
   if _app then
     return
   end
   _app = app
 end
+
 --- --------------------------------------------------------------
---- Public API methods
+--- Public Module Functions
 --- --------------------------------------------------------------
 
 ---Devuelve la versión del plugin
@@ -86,6 +85,24 @@ function M.request_window(opts)
   return _app:request_window(opts)
 end
 
-M = setmetatable(M, M) -- Module is ready here
--- ... additional module operations can be added here if needed
+--- --------------------------------------------------------------
+--- Metatable adjustments
+--- --------------------------------------------------------------
+
+---Metatable to control module property access
+M.__index = function(self, key)
+  if key == "_app" then
+    return _app -- retorna la variable local
+  end
+  return rawget(M, key) -- busca en M sin activar metatable
+end
+---Prevent modification of module properties by accident
+M.__newindex = function(self, key, value)
+  Shared.bad_assignment_handler(self, self.name, key, value)
+end
+---Prevent access to the module metatable
+M.__metatable = false
+---Assign the metatable to the module
+M = setmetatable(M, M)
+---Module is ready here. Additional module operations can be added if needed.
 return M

@@ -4,17 +4,17 @@ local Shared = require "lsp-dui.shared"
 --- Module Definition
 --- --------------------------------------------------------------
 
----Module for CNAME class
----@class CNAMEModule
-local M = { name = "CNAMEModule" }
+---Module for LDService class
+---@class LDServiceModule
+local M = { name = "LDServiceModule" }
 
 --- --------------------------------------------------------------
 --- Class Definition
 --- --------------------------------------------------------------
 
----TODO: Document the CNAME class
----@class CNAME
-local C = { name = "CNAME" }
+---TODO: Document the LDService class
+---@class LDService
+local C = { name = "LDService" }
 
 --- --------------------------------------------------------------
 --- Public Class Methods
@@ -39,7 +39,7 @@ end
 ---Prevent access to the class metatable
 C.__metatable = false
 ---Assign the class to the module
-M.CNAME = C
+M.LDService = C
 ---Class is ready here. Additional operations can be added if needed.
 ---Module is ready here. Additional module operations can be added if needed.
 return M

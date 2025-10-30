@@ -4,27 +4,19 @@ local Shared = require "lsp-dui.shared"
 --- Module definition
 --- --------------------------------------------------------------
 
----@class LDConstantsModule
+---TODO: Document the MNAME module
+---@class MNAME
 local M = {}
 
 --- --------------------------------------------------------------
 --- Public Module Variables
 --- --------------------------------------------------------------
 
-M.name = "LDConstantsModule"
+M.name = "MNAME"
 
-M.PLUGIN_VERSION = "0.0.1"
-M.PLUGIN_NAME = "lsp-diagnostics-ui"
-M.PLUGIN_SHORT = "lsp-dui"
-M.CORE_MODULE_NAME = "LDCoreModule"
-
----Opciones por defecto
----@type LDInternalPluginOpts
-M.DEFAULT_OPTS = {
-  default_order = "category",
-  default_type = "buffer",
-  default_autofocus = false,
-}
+--- --------------------------------------------------------------
+--- Public Module Functions
+--- --------------------------------------------------------------
 
 --- --------------------------------------------------------------
 --- Metatable adjustments

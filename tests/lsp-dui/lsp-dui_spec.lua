@@ -14,5 +14,8 @@ describe("setup", function()
   it("working test", function() end)
   local api = plugin.api
   vim.notify("API CONTAINS: " .. vim.inspect(api.opts()))
+
+  local app = api._app
+  vim.notify("APP IS RUNNING: " .. tostring(app:is_running()))
   plugin.restart()
 end)

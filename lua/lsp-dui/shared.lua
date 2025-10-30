@@ -1,9 +1,21 @@
+--- --------------------------------------------------------------
+--- Module definition
+--- --------------------------------------------------------------
+
 ---@class LDSharedModule
 local M = {}
 
+--- --------------------------------------------------------------
+--- Public Module Variables
+--- --------------------------------------------------------------
+
 M.name = "LDSharedModule"
 
--- Reports an attempt to modify a read-only property.
+--- --------------------------------------------------------------
+--- Public Module Functions
+--- --------------------------------------------------------------
+
+---Reports an attempt to modify a read-only property.
 ---@param cname string The name of the class where the assignment was attempted.
 ---@param prop string The name of the property that was attempted to be modified.
 ---@param value any The value that was attempted to be assigned.
@@ -17,9 +29,9 @@ function M.report_bad_assignement(cname, prop, value)
   error(debug.traceback(msg, 2), 0)
 end
 
--- Default __newindex for classes: prevents accidental property modifications.
--- MUST be called via a callback passing `self` first; never invoke directly.
--- Uses a trimmed traceback to hide __newindex in errors.
+---Default __newindex for classes: prevents accidental property modifications.
+---MUST be called via a callback passing `self` first; never invoke directly.
+---Uses a trimmed traceback to hide __newindex in errors.
 ---@param class table The class table where the assignment was attempted.
 ---@param cname string The name of the class where the assignment was attempted.
 ---@param prop string The name of the property that was attempted to be modified.
@@ -42,9 +54,9 @@ function M.bad_assignment_handler(class, cname, prop, value, allowed_props)
   rawset(class, prop, value) -- Allow setting private properties
 end
 
---- Función que acepta todos los number que le pases y genera una key separada por ':'
---- @param ... number Valores para generar la key
---- @return string
+---Función que acepta todos los number que le pases y genera una key separada por ':'
+---@param ... number Valores para generar la key
+---@return string
 function M.generate_key(...)
   local args = { ... }
   local key_parts = {}
@@ -54,9 +66,9 @@ function M.generate_key(...)
   return table.concat(key_parts, ":")
 end
 
---- Función inversa a `generate_key`, devuelve una tabla con los números
---- @param key string Key generada por `generate_key`
---- @return number[]
+---Función inversa a `generate_key`, devuelve una tabla con los números
+---@param key string Key generada por `generate_key`
+---@return number[]
 function M.parse_key(key)
   local parts = vim.split(key, ":")
   local numbers = {}
@@ -149,4 +161,19 @@ function M.trim_path(path, depth)
   return table.concat(trimmed_parts, "/")
 end
 
+--- --------------------------------------------------------------
+--- Metatable adjustments
+--- --------------------------------------------------------------
+
+---Metatable to control module property access
+M.__index = M
+---Prevent modification of module properties by accident
+M.__newindex = function(self, key, value)
+  M.bad_assignment_handler(self, self.name, key, value)
+end
+---Prevent access to the module metatable
+M.__metatable = false
+---Assign the module metatable
+M = setmetatable(M, M)
+---Module is ready here. Additional module operations can be added if needed.
 return M

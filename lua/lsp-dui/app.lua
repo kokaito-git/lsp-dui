@@ -1,9 +1,21 @@
 local Shared = require "lsp-dui.shared"
 local Constants = require "lsp-dui.constants"
 
-local M = {}
+---Imports provisionales/pendientes de ajustar TODO:
+local LDProvider = require("lsp-dui.diagnostics.provider").LDProvider
 
--- Lee y valida las opciones pasadas al constructor
+--- --------------------------------------------------------------
+--- Module Definition
+--- --------------------------------------------------------------
+
+--- TODO: Comentar este módulo.
+local M = { name = "LDAppModule" }
+
+--- --------------------------------------------------------------
+--- Private Functions
+--- --------------------------------------------------------------
+
+---Lee y valida las opciones pasadas al constructor
 ---@param opts LDPluginOpts?
 ---@return LDInternalPluginOpts
 local function _read_opts(opts)
@@ -58,21 +70,22 @@ local function _read_opts(opts)
   return defaulted
 end
 
---- LDApp representa la aplicación principal del plugin. Gestiona el ciclo de vida y ofrece
---- una interfaz para interactuar con el plugin, como reiniciarlo, iniciar acciones, etc.
+--- --------------------------------------------------------------
+--- Class Definition
+--- --------------------------------------------------------------
+
+---LDApp representa la aplicación principal del plugin. Gestiona el ciclo de vida y ofrece
+---una interfaz para interactuar con el plugin, como reiniciarlo, iniciar acciones, etc.
 ---@class LDApp
 local C = {
   name = "LDApp",
 }
-C.__index = C
--- Prevent modification of properties by accident
-C.__newindex = function(self, key, value)
-  Shared.bad_assignment_handler(self, self.name, key, value)
-end
--- Prevent access to the metatable
-C.__metatable = false
 
---- Crea una nueva instancia de LDApp (se hace automáticamente)
+--- --------------------------------------------------------------
+--- Public Class Methods
+--- --------------------------------------------------------------
+
+---Crea una nueva instancia de LDApp (se hace automáticamente)
 function C.new()
   ---@class LDApp
   local o = setmetatable({}, C)
@@ -81,18 +94,18 @@ function C.new()
   return o
 end
 
---- Devuelve la versión del plugin
+---Devuelve la versión del plugin
 function C:version()
   return Constants.PLUGIN_VERSION
 end
 
---- Devuelve true si la aplicación está en ejecución
+---Devuelve true si la aplicación está en ejecución
 function C:is_running()
   return self._running
 end
 
---- Inicia la aplicación (recibe las opciones indicadas en setup)
---- Error: Si la aplicación ya está en ejecución.
+---Inicia la aplicación (recibe las opciones indicadas en setup)
+---Error: Si la aplicación ya está en ejecución.
 function C:start(opts)
   if self._running then
     vim.notify("LSP Diagnostics UI is already running.", vim.log.levels.WARN)
@@ -103,8 +116,8 @@ function C:start(opts)
   -- TODO: Continuar con la inicialización
 end
 
---- Detiene la aplicación (limpia todos los recursos)
---- Error: Si la aplicación no está en ejecución.
+---Detiene la aplicación (limpia todos los recursos)
+---Error: Si la aplicación no está en ejecución.
 function C:stop()
   if not self._running then
     vim.notify("LSP Diagnostics UI is not running.", vim.log.levels.WARN)
@@ -115,8 +128,8 @@ function C:stop()
   self._running = false
 end
 
---- Reinicia la aplicación (conservando los settings actuales)
---- Error: Si la aplicación no está en ejecución.
+---Reinicia la aplicación (conservando los settings actuales)
+---Error: Si la aplicación no está en ejecución.
 function C:restart()
   if not self._running then
     vim.notify("LSP Diagnostics UI is not running.", vim.log.levels.WARN)
@@ -128,8 +141,8 @@ function C:restart()
   self:start(opts)
 end
 
---- Devuelve una copia de las opciones actuales
---- Error: Si la aplicación no está en ejecución.
+---Devuelve una copia de las opciones actuales
+---Error: Si la aplicación no está en ejecución.
 function C:opts()
   if not self._running then
     vim.notify("LSP Diagnostics UI is not running.", vim.log.levels.WARN)
@@ -143,5 +156,23 @@ function C:request_window(opts)
   -- TODO: Implementar la lógica para solicitar una ventana
 end
 
+--TODO: Comentar esta función.
+function C:diagnostic_provider() end
+
+--- --------------------------------------------------------------
+--- Metatable adjustments
+--- --------------------------------------------------------------
+
+---Metatable to control class property access
+C.__index = C
+---Prevent modification of class properties by accident
+C.__newindex = function(self, key, value)
+  Shared.bad_assignment_handler(self, self.name, key, value)
+end
+---Prevent access to the class metatable
+C.__metatable = false
+---Assign the class to the module
 M.LDApp = C
+---Class is ready here. Additional operations can be added if needed.
+---Module is ready here. Additional module operations can be added if needed.
 return M
