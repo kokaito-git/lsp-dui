@@ -1,7 +1,7 @@
 local Shared = require "lsp-dui.shared"
 
----@class LDApp
-local _app = nil
+--- GETTERS:
+local module_getters = Shared.make_str_set { "_app" }
 
 --- --------------------------------------------------------------
 --- Module definition
@@ -29,60 +29,65 @@ local M = {
 ---Grants the API module access to the application instance.
 ---@param app LDApp
 function M._attach(app)
-  if _app then
+  if M._app then
     return
   end
-  _app = app
+  M.__app = app
 end
 
 --- --------------------------------------------------------------
 --- Public Module Functions
 --- --------------------------------------------------------------
 
+---Getter privado para poder acceder a app desde la api con motivos de desarrollo y testing
+function M.__app_get() --- GETTER: _app
+  return M.__app
+end
+
 ---Devuelve la versión del plugin
 function M.version()
-  assert(_app ~= nil, "LDApi:version: App instance is not attached.")
-  return _app:version()
+  assert(M._app ~= nil, "LDApi:version: App instance is not attached.")
+  return M._app:version()
 end
 
 ---Devuelve true si la aplicación está en ejecución
 function M.is_running()
-  assert(_app ~= nil, "LDApi:is_running: App instance is not attached.")
-  return _app:is_running()
+  assert(M._app ~= nil, "LDApi:is_running: App instance is not attached.")
+  return M._app:is_running()
 end
 
 ---Inicia la aplicación (recibe las opciones indicadas en setup)
 ---Error: Si la aplicación ya está en ejecución.
 function M.start(opts)
-  assert(_app ~= nil, "LDApi:start: App instance is not attached.")
-  return _app:start(opts)
+  assert(M._app ~= nil, "LDApi:start: App instance is not attached.")
+  return M._app:start(opts)
 end
 
 ---Detiene la aplicación (limpia todos los recursos)
 ---Error: Si la aplicación no está en ejecución.
 function M.stop()
-  assert(_app ~= nil, "LDApi:stop: App instance is not attached.")
-  return _app:stop()
+  assert(M._app ~= nil, "LDApi:stop: App instance is not attached.")
+  return M._app:stop()
 end
 
 ---Reinicia la aplicación (conservando los settings actuales)
 ---Error: Si la aplicación no está en ejecución.
 function M.restart()
-  assert(_app ~= nil, "LDApi:restart: App instance is not attached.")
-  return _app:restart()
+  assert(M._app ~= nil, "LDApi:restart: App instance is not attached.")
+  return M._app:restart()
 end
 
 ---Devuelve una copia de las opciones actuales
 ---Error: Si la aplicación no está en ejecución.
 function M.opts()
-  assert(_app ~= nil, "LDApi:opts: App instance is not attached.")
-  return _app:opts()
+  assert(M._app ~= nil, "LDApi:opts: App instance is not attached.")
+  return M._app:opts()
 end
 
 function M.request_window(opts)
   assert(opts ~= M, "You must call LDApi.request_window(...) and not LDApi.request_window:LDApi(...)")
-  assert(_app ~= nil, "LDApi:request_window: App instance is not attached.")
-  return _app:request_window(opts)
+  assert(M._app ~= nil, "LDApi:request_window: App instance is not attached.")
+  return M._app:request_window(opts)
 end
 
 --- --------------------------------------------------------------
@@ -90,15 +95,12 @@ end
 --- --------------------------------------------------------------
 
 ---Metatable to control module property access
-M.__index = function(self, key)
-  if key == "_app" then
-    return _app -- retorna la variable local
-  end
-  return rawget(M, key) -- busca en M sin activar metatable
+M.__index = function(_, key)
+  return Shared.module_getters_handler(M, M.name, key, module_getters)
 end
 ---Prevent modification of module properties by accident
 M.__newindex = function(self, key, value)
-  Shared.bad_assignment_handler(self, M.name, key, value)
+  Shared.module_setters_handler(self, M.name, key, value)
 end
 ---Prevent access to the module metatable
 M.__metatable = false

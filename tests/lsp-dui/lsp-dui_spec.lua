@@ -12,9 +12,6 @@ local plugin = require "lsp-dui"
 
 describe("setup", function()
   it("working test", function() end)
-  local api = plugin.api
-  local app = api._app
-  local provider = app:diagnostic_provider()
-
-  vim.notify("cadena inicial: " .. provider.cadena)
+  local app = plugin._app
+  vim.notify("Valor de _app en test: " .. vim.inspect(app), vim.log.levels.DEBUG)
 end)

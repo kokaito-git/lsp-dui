@@ -1,3 +1,5 @@
+local MH = require "lsp-dui.shared.meta_handlers"
+
 --- --------------------------------------------------------------
 --- Module definition
 --- --------------------------------------------------------------
@@ -15,6 +17,12 @@ M.name = "LDSharedModule"
 --- Public Module Functions
 --- --------------------------------------------------------------
 
+M.class_getters_handler = MH.class_getters_handler
+M.module_getters_handler = MH.module_getters_handler
+M.class_setters_handler = MH.class_setters_handler
+M.module_setters_handler = MH.module_setters_handler
+
+--- UNUSED:
 ---Creates a set from a list of strings.
 ---@param list string[]  Lista de strings
 ---@return table<string, true>  Conjunto donde cada string es clave
@@ -26,46 +34,7 @@ function M.make_str_set(list)
   return t
 end
 
----Default __index for classes: Traduce las llamadas de `miembro` a `_miembro`
----con el fin de exponer propiedades de solo lectura.
----@param class table The class table where the access was attempted.
----@param cname string The name of the class where the access was attempted.
----@param prop string The name of the property that was attempted to be accessed.
----@param accesable_props? table<string, true> Optional set of unmodifiable property names.
----@return any The value of the property.
-function M.accesable_props_handler(class, cname, prop, accesable_props)
-  if accesable_props and accesable_props[prop] then
-    local private_prop = "_" .. prop
-    return rawget(class, private_prop)
-  end
-  return rawget(class, prop)
-end
-
----Default __newindex for classes: prevents accidental property modifications.
----MUST be called via a callback passing `self` first; never invoke directly.
----Uses a trimmed traceback to hide __newindex in errors.
----@param class table The class table where the assignment was attempted.
----@param cname string The name of the class where the assignment was attempted.
----@param prop string The name of the property that was attempted to be modified.
----@param value any The value that was attempted to be assigned.
----@param modifiable_props? table<string, true> Optional set of modifiable property names.
----@return nil
-function M.bad_assignment_handler(class, cname, prop, value, modifiable_props)
-  if not vim.startswith(prop, "_") then
-    if not (modifiable_props and modifiable_props[prop]) then
-      local msg = string.format(
-        "Attempt to modify read-only property '%s' of %s with value %s.",
-        prop,
-        cname,
-        vim.inspect(value)
-      )
-      error(debug.traceback(msg, 3), 0)
-      return
-    end
-  end
-  rawset(class, prop, value) -- Allow setting private properties
-end
-
+--- UNUSED:
 ---Función que acepta todos los number que le pases y genera una key separada por ':'
 ---@param ... number Valores para generar la key
 ---@return string
@@ -78,6 +47,7 @@ function M.generate_key(...)
   return table.concat(key_parts, ":")
 end
 
+--- UNUSED:
 ---Función inversa a `generate_key`, devuelve una tabla con los números
 ---@param key string Key generada por `generate_key`
 ---@return number[]
@@ -90,6 +60,7 @@ function M.parse_key(key)
   return numbers
 end
 
+--- UNUSED:
 ---@generic T
 ---@param t T[] Table of elements of type T
 ---@return ... T Unpacks the elements of the table
@@ -178,13 +149,16 @@ end
 --- --------------------------------------------------------------
 
 ---Metatable to control module property access
-M.__index = M
+M.__index = function(_, key)
+  return MH.module_getters_handler(M, M.name, key)
+end
 ---Prevent modification of module properties by accident
 M.__newindex = function(self, key, value)
-  M.bad_assignment_handler(self, M.name, key, value)
+  MH.module_setters_handler(self, M.name, key, value)
 end
 ---Prevent access to the module metatable
 M.__metatable = false
----Assign the module metatable
+---Assign the metatable to the module
 M = setmetatable(M, M)
+---Module is ready here. Additional module operations can be added if needed.
 return M

@@ -1,0 +1,2 @@
+---@class LDProvider
+---@field public cadena string

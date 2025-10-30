@@ -1,16 +1,18 @@
 -------------------------------------
 --- LDM CORE MODULE
 -------------------------------------
+
 ---@class LDCoreModule
 ---@field name string
 ---@field version fun(): string
 ---@field setup fun(opts: LDPluginOpts?): LDCoreModule
 ---@field restart fun(): nil
----@field api LDApiModule
+---@field api LDApiModule Api pública de la aplicación
 
 -------------------------------------
 --- LDM API
 -------------------------------------
+
 ---@class LDApiModule
 ---@field name string
 ---@field shared LDSharedModule
@@ -40,6 +42,7 @@
 -------------------------------------
 --- OPTIONS
 -------------------------------------
+
 ---@class LDPluginOpts
 
 ---@class LDInternalPluginOpts

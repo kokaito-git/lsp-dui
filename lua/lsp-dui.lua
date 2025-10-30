@@ -1,6 +1,10 @@
+local AppModule = require "lsp-dui.app"
 local App = require("lsp-dui.app").LDApp
-local api = require "lsp-dui.api"
-local shared = require "lsp-dui.shared"
+local Api = require "lsp-dui.api"
+local Shared = require "lsp-dui.shared"
+
+--- GETTERS:
+local module_getters = Shared.make_str_set { "api", "_app"}
 
 --- --------------------------------------------------------------
 --- Module definition
@@ -11,45 +15,58 @@ local shared = require "lsp-dui.shared"
 local M = {
   ---Nombre del módulo
   name = "LDCoreModule",
-  ---note: placeholder to be able to comment the api property
-  ---@class LDApiModule
-  ---Instancia de la aplicación DuiApp. Puedes acceder a ella directamente para manipularla.
-  api = nil,
-  _app = App.new(),
+  __app = App.new(),
 }
 
 --- --------------------------------------------------------------
 --- Public Module Functions
 --- --------------------------------------------------------------
 
+---Getter público para acceder a la api del plugin
+---Inicializa implícitamente la aplicación si no está en ejecución con valores por defecto.
+function M._api_get() --- GETTER: api
+  if not M.__app:is_running() then
+    M.setup()
+  end
+  return Api
+end
+
+---Getter privado para poder acceder a app desde el módulo principal con motivos de desarrollo y testing
+---Inicializa implícitamente la aplicación si no está en ejecución con valores por defecto.
+function M.__app_get() --- GETTER: _app
+  if not M.__app:is_running() then
+    M.setup()
+  end
+  return M.__app
+end
+
 ---Versión del plugin
 function M.version()
-  return api.version()
+  return Api.version()
 end
 
 ---Función para re-configurar el plugin (si no vas a cambiar opciones no la llames)
 function M.setup(opts)
-  if M._app:is_running() then
-    M._app:stop()
+  if M.__app:is_running() then
+    M.__app:stop()
   else
-    api._attach(M._app) -- attach the app if not already attached
+    Api._attach(M.__app) -- attach the app if not already attached
   end
-  M._app:start(opts)
+  M.__app:start(opts)
   return M
 end
 
 ---Función para reiniciar el plugin conservando los settigns actuales.
 function M.restart()
-  vim.notify("Restarting lsp-dui application...", vim.log.levels.INFO)
   local opts = nil
-  if M._app:is_running() then
-    opts = M._app:opts()
-    M._app:stop()
+  if M.__app:is_running() then
+    opts = M.__app:opts()
+    M.__app:stop()
   else
-    api._attach(M._app) -- attach the app if not already attached
+    Api._attach(M.__app) -- attach the app if not already attached
   end
   ---@diagnostic disable-next-line: param-type-mismatch
-  M._app:start(opts)
+  M.__app:start(opts)
   return M
 end
 
@@ -58,20 +75,12 @@ end
 --- --------------------------------------------------------------
 
 ---Metatable to control module property access
-M.__index = function(self, key)
-  if key == "api" then
-    if not self._app:is_running() then
-      -- usar rawget para evitar metamétodos al invocar setup
-      local setup = rawget(self, "setup")
-      setup()
-    end
-    return api
-  end
-  return rawget(self, key)
+M.__index = function(_, key)
+  return Shared.module_getters_handler(M, M.name, key, module_getters)
 end
 ---Prevent modification of module properties by accident
 M.__newindex = function(self, key, value)
-  shared.bad_assignment_handler(self, self.name, key, value)
+  Shared.module_setters_handler(self, M.name, key, value)
 end
 ---Prevent access to the module metatable
 M.__metatable = false
