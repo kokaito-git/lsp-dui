@@ -9,7 +9,6 @@ local mod_props = Shared.LDCustomProps.new {}
 ---@class LDConstantsModule
 local MOD_PLACEHOLDERS = {}
 
-
 ---@class LDConstantsModule
 local M = {}
 
