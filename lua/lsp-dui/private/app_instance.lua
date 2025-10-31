@@ -1,4 +1,5 @@
 local Shared = require "lsp-dui.shared"
+local App = require("lsp-dui.app").C
 
 --- --------------------------------------------------------------
 --- Module definition
@@ -6,31 +7,37 @@ local Shared = require "lsp-dui.shared"
 
 local mod_props = Shared.LDCustomProps.new {}
 
----@class LDConstantsModule
+---@class LDSharedModule
 local MOD_PLACEHOLDERS = {}
 
-
----@class LDConstantsModule
+---TODO: Document the LDAppInstanceModule module
+---@class LDAppInstanceModule
 local M = {}
 
 --- --------------------------------------------------------------
 --- Public Module Variables
 --- --------------------------------------------------------------
 
-M.name = "LDConstantsModule"
+M.name = "LDAppInstanceModule"
 
-M.PLUGIN_VERSION = "0.0.1"
-M.PLUGIN_NAME = "lsp-diagnostics-ui"
-M.PLUGIN_SHORT = "lsp-dui"
-M.CORE_MODULE_NAME = "LDCoreModule"
+M.app = App.new()
 
----Opciones por defecto
----@type LDInternalPluginOpts
-M.DEFAULT_OPTS = {
-  default_order = "category",
-  default_type = "buffer",
-  default_autofocus = false,
-}
+function M.setup(config)
+  if M.app.is_running then
+    M.app:stop()
+  end
+  M.app:start(config)
+end
+
+function M.restart()
+  local opts = nil
+  if M.app.is_running then
+    opts = M.app.opts
+    M.app:stop()
+  end
+  ---@diagnostic disable-next-line: param-type-mismatch
+  M.app:start(opts)
+end
 
 --- --------------------------------------------------------------
 --- Metatable adjustments

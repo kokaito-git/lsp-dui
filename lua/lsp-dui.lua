@@ -1,72 +1,61 @@
-local AppModule = require "lsp-dui.app"
-local App = require("lsp-dui.app").LDApp
-local Api = require "lsp-dui.api"
 local Shared = require "lsp-dui.shared"
-
---- GETTERS:
-local module_getters = Shared.make_str_set { "api", "_app"}
+local Api = require "lsp-dui.api"
+local AppInstanceModule = require "lsp-dui.private.app_instance"
 
 --- --------------------------------------------------------------
 --- Module definition
 --- --------------------------------------------------------------
 
+local mod_props = Shared.LDCustomProps.new {
+  getters = { "api", "_app", "version" },
+}
+
+---@class LDCoreModule
+local MOD_PLACEHOLDERS = { -- PLACEHOLDERS for documentation purposes
+  --- Acceso a la api pública del plugin
+  api = nil, ---@class LDApiModule
+  --- (private) Acceso a la instancia de la aplicación para propósitos de desarrollo y testing.
+  _app = nil, ---@class LDApp
+  --- Versión del plugin
+  version = nil, ---@type string
+}
+
 ---TODO: Document the MNAME module
+---@class LDCoreModule
 ---@class LDCoreModule
 local M = {
   ---Nombre del módulo
   name = "LDCoreModule",
-  __app = App.new(),
+  --- Acceso a la api pública del plugin
+  _api = Api,
+  --- (private) Acceso a la instancia de la aplicación para propósitos de desarrollo y testing.
+  __app = AppInstanceModule.app,
 }
 
 --- --------------------------------------------------------------
 --- Public Module Functions
 --- --------------------------------------------------------------
 
----Getter público para acceder a la api del plugin
----Inicializa implícitamente la aplicación si no está en ejecución con valores por defecto.
 function M._api_get() --- GETTER: api
-  if not M.__app:is_running() then
-    M.setup()
-  end
-  return Api
+  return M._api
 end
 
----Getter privado para poder acceder a app desde el módulo principal con motivos de desarrollo y testing
----Inicializa implícitamente la aplicación si no está en ejecución con valores por defecto.
 function M.__app_get() --- GETTER: _app
-  if not M.__app:is_running() then
-    M.setup()
-  end
   return M.__app
 end
 
----Versión del plugin
-function M.version()
-  return Api.version()
+function M._version_get() --- GETTER: version
+  return M._api.version
 end
 
----Función para re-configurar el plugin (si no vas a cambiar opciones no la llames)
+---Función para configurar o re-configurar el plugin.
+---Si la aplicación ya está en ejecución se detiene y se inicia con la nueva configuración (por tanto
+---si no se proporciona configuración se re/inicia con los valores por defecto).
+---
+---Nota: Si quieres más opciones accede a la api directamente.
+---@param opts LDPluginOpts? Configuración para la aplicación. Si es nil se usaran los valores por defecto.
 function M.setup(opts)
-  if M.__app:is_running() then
-    M.__app:stop()
-  else
-    Api._attach(M.__app) -- attach the app if not already attached
-  end
-  M.__app:start(opts)
-  return M
-end
-
----Función para reiniciar el plugin conservando los settigns actuales.
-function M.restart()
-  local opts = nil
-  if M.__app:is_running() then
-    opts = M.__app:opts()
-    M.__app:stop()
-  else
-    Api._attach(M.__app) -- attach the app if not already attached
-  end
-  ---@diagnostic disable-next-line: param-type-mismatch
-  M.__app:start(opts)
+  M._api.setup(opts)
   return M
 end
 
@@ -76,11 +65,11 @@ end
 
 ---Metatable to control module property access
 M.__index = function(_, key)
-  return Shared.module_getters_handler(M, M.name, key, module_getters)
+  return Shared.module_getters_handler(M, key, mod_props.getters)
 end
 ---Prevent modification of module properties by accident
 M.__newindex = function(self, key, value)
-  Shared.module_setters_handler(self, M.name, key, value)
+  Shared.module_setters_handler(M, key, value, mod_props.setters)
 end
 ---Prevent access to the module metatable
 M.__metatable = false

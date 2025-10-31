@@ -21,3 +21,16 @@ Add this to your plugins/init.lua file:
     }
 }
 ```
+
+## Api sample usage
+
+```lua
+-- Using the api
+local plugin = require("lsp-dui")
+local api = plugin.api
+if not plugin.is_running then -- evade to overwrite existing setup
+    api.setup(opts)
+end
+
+local current_opts = api.opts -- returns a copy of the current opts
+```

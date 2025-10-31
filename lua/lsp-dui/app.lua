@@ -2,11 +2,16 @@ local Shared = require "lsp-dui.shared"
 local Constants = require "lsp-dui.constants"
 
 ---Imports provisionales/pendientes de ajustar TODO:
-local LDProvider = require("lsp-dui.diagnostics.provider").LDProvider
+local LDProvider = require("lsp-dui.diagnostics.provider").C
 
 --- --------------------------------------------------------------
 --- Module Definition
 --- --------------------------------------------------------------
+
+local mod_props = Shared.LDCustomProps.new {}
+
+---@class LDAppModule
+local MOD_PLACEHOLDERS = {}
 
 --- TODO: Comentar este módulo.
 local M = { name = "LDAppModule" }
@@ -74,6 +79,16 @@ end
 --- Class Definition
 --- --------------------------------------------------------------
 
+local cls_props = Shared.LDCustomProps.new {
+  getters = { "version", "is_running", "opts" },
+}
+
+---@class LDApp
+local CLS_PLACEHOLDERS = {
+  ---Retorna true si la aplicación está en ejecución, false en caso contrario.
+  is_running = nil, ---@type boolean
+}
+
 ---LDApp representa la aplicación principal del plugin. Gestiona el ciclo de vida y ofrece
 ---una interfaz para interactuar con el plugin, como reiniciarlo, iniciar acciones, etc.
 ---@class LDApp
@@ -90,28 +105,38 @@ function C.new()
   ---@class LDApp
   local o = setmetatable({}, C)
   o._opts = nil
-  o._running = false
+  o._is_running = false
   return o
 end
 
 ---Devuelve la versión del plugin
-function C:version()
+function C:_version_get() --- GETTER: version
   return Constants.PLUGIN_VERSION
 end
 
 ---Devuelve true si la aplicación está en ejecución
-function C:is_running()
-  return self._running
+function C:_is_running_get() --- GETTER: is_running
+  return self._is_running
+end
+
+---Devuelve una copia de las opciones actuales
+---Error: Si la aplicación no está en ejecución.
+function C:_opts_get() --- GETTER: opts
+  if not self._is_running then
+    vim.notify("LSP Diagnostics UI is not running.", vim.log.levels.WARN)
+    error "Cannot get options when the application is not running."
+  end
+  return vim.deepcopy(self._opts)
 end
 
 ---Inicia la aplicación (recibe las opciones indicadas en setup)
 ---Error: Si la aplicación ya está en ejecución.
 function C:start(opts)
-  if self._running then
+  if self._is_running then
     vim.notify("LSP Diagnostics UI is already running.", vim.log.levels.WARN)
     return
   end
-  self._running = true
+  self._is_running = true
   self._opts = _read_opts(opts)
   -- TODO: Continuar con la inicialización
 end
@@ -119,19 +144,19 @@ end
 ---Detiene la aplicación (limpia todos los recursos)
 ---Error: Si la aplicación no está en ejecución.
 function C:stop()
-  if not self._running then
+  if not self._is_running then
     vim.notify("LSP Diagnostics UI is not running.", vim.log.levels.WARN)
     return
   end
   -- TODO: Limpiar recursos
   self._opts = nil
-  self._running = false
+  self._is_running = false
 end
 
 ---Reinicia la aplicación (conservando los settings actuales)
 ---Error: Si la aplicación no está en ejecución.
 function C:restart()
-  if not self._running then
+  if not self._is_running then
     vim.notify("LSP Diagnostics UI is not running.", vim.log.levels.WARN)
     return
   end
@@ -139,16 +164,6 @@ function C:restart()
   local opts = self:opts()
   ---@diagnostic disable-next-line: param-type-mismatch
   self:start(opts)
-end
-
----Devuelve una copia de las opciones actuales
----Error: Si la aplicación no está en ejecución.
-function C:opts()
-  if not self._running then
-    vim.notify("LSP Diagnostics UI is not running.", vim.log.levels.WARN)
-    error "Cannot get options when the application is not running."
-  end
-  return vim.deepcopy(self._opts)
 end
 
 -- TODO: Comentar esta función.
@@ -167,19 +182,19 @@ end
 --- --------------------------------------------------------------
 
 ---Metatable to control class property access
-C.__index = function(_, key)
-  return Shared.class_getters_handler(C, C.name, key)
+C.__index = function(self, key)
+  return Shared.class_getters_handler(C, self, key, cls_props.getters)
 end
 ---Prevent modification of class properties by accident
 C.__newindex = function(self, key, value)
   -- Shared.bad_assignment_handler(C, C.name, key, value)
-  Shared.class_setters_handler(self, C.name, key, value)
+  Shared.class_setters_handler(C, self, key, value, cls_props.setters)
 end
 ---Prevent access to the class metatable
 C.__metatable = false
 
 ---Assign the class to the module (*)
-M.LDApp = C
+M.C = C
 
 --- --------------------------------------------------------------
 --- Module Metatable adjustments
@@ -187,11 +202,11 @@ M.LDApp = C
 
 -- ---Metatable to control module property access
 M.__index = function(_, key)
-  return Shared.module_getters_handler(M, M.name, key)
+  return Shared.module_getters_handler(M, key, mod_props.getters)
 end
 ---Prevent modification of module properties by accident
 M.__newindex = function(self, key, value)
-  Shared.module_setters_handler(self, M.name, key, value)
+  Shared.module_setters_handler(M, key, value, mod_props.setters)
 end
 ---Prevent access to the module metatable
 M.__metatable = false

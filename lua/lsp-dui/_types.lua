@@ -4,10 +4,9 @@
 
 ---@class LDCoreModule
 ---@field name string
----@field version fun(): string
+---@field version string
+---@field api LDApiModule
 ---@field setup fun(opts: LDPluginOpts?): LDCoreModule
----@field restart fun(): nil
----@field api LDApiModule Api pública de la aplicación
 
 -------------------------------------
 --- LDM API
@@ -17,12 +16,12 @@
 ---@field name string
 ---@field shared LDSharedModule
 ---@field constants LDConstantsModule
----@field version fun(): string
----@field is_running fun(): boolean
----@field start fun(opts: LDPluginOpts?): nil
----@field stop fun(): nil
+---@field version string
+---@field is_running boolean
+---@field opts LDInternalPluginOpts
+---@field setup fun(opts: LDPluginOpts?): nil
 ---@field restart fun(): nil
----@field opts fun(): LDInternalPluginOpts
+---@field stop fun(): nil
 ---@field request_window fun(opts: LDRequestWindowOpts?): nil -- TODO: add return type
 
 -------------------------------------
@@ -31,13 +30,13 @@
 
 ---@class LDApp
 ---@field new fun(): LDApp
----@field version fun(self: LDApp): string
----@field is_running fun(self: LDApp): boolean
+---@field version string
+---@field is_running boolean
+---@field opts LDInternalPluginOpts
 ---@field start fun(self: LDApp, opts: LDPluginOpts?): nil
 ---@field stop fun(self: LDApp): nil
 ---@field restart fun(self: LDApp): nil
----@field opts fun(self: LDApp): LDInternalPluginOpts
---- @field request_window fun(self: LDApp, opts: LDRequestWindowOpts?): nil -- TODO: return
+---@field request_window fun(self: LDApp, opts: LDRequestWindowOpts?): nil -- TODO: return
 
 -------------------------------------
 --- OPTIONS

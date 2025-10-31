@@ -1,8 +1,15 @@
 local MH = require "lsp-dui.shared.meta_handlers"
+local Methods = require "lsp-dui.shared.methods"
+local TM = Methods.Table
 
 --- --------------------------------------------------------------
 --- Module definition
 --- --------------------------------------------------------------
+
+local mod_props = MH.LDCustomProps.new {}
+
+---@class LDSharedModule
+local MOD_PLACEHOLDERS = {}
 
 ---@class LDSharedModule
 local M = {}
@@ -17,22 +24,12 @@ M.name = "LDSharedModule"
 --- Public Module Functions
 --- --------------------------------------------------------------
 
+M.Methods = Methods
+M.LDCustomProps = MH.LDCustomProps
 M.class_getters_handler = MH.class_getters_handler
 M.module_getters_handler = MH.module_getters_handler
 M.class_setters_handler = MH.class_setters_handler
 M.module_setters_handler = MH.module_setters_handler
-
---- UNUSED:
----Creates a set from a list of strings.
----@param list string[]  Lista de strings
----@return table<string, true>  Conjunto donde cada string es clave
-function M.make_str_set(list)
-  local t = {}
-  for _, v in ipairs(list) do
-    t[v] = true
-  end
-  return t
-end
 
 --- UNUSED:
 ---Función que acepta todos los number que le pases y genera una key separada por ':'
@@ -150,15 +147,14 @@ end
 
 ---Metatable to control module property access
 M.__index = function(_, key)
-  return MH.module_getters_handler(M, M.name, key)
+  return MH.module_getters_handler(M, key, mod_props.getters)
 end
 ---Prevent modification of module properties by accident
 M.__newindex = function(self, key, value)
-  MH.module_setters_handler(self, M.name, key, value)
+  MH.module_setters_handler(M, key, value, mod_props.setters)
 end
 ---Prevent access to the module metatable
 M.__metatable = false
----Assign the metatable to the module
+---Assign the module metatable
 M = setmetatable(M, M)
----Module is ready here. Additional module operations can be added if needed.
 return M

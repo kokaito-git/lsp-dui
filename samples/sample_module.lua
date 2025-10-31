@@ -1,38 +1,40 @@
+--- Anulamos porque tenemos sample_class y sample_module usando CNAME
+---@diagnostic disable: duplicate-set-field
+
 local Shared = require "lsp-dui.shared"
 
 --- --------------------------------------------------------------
 --- Module definition
 --- --------------------------------------------------------------
 
+local mod_props = Shared.LDCustomProps.new {}
+
+---@class CNAMEModule
+local MOD_PLACEHOLDERS = {}
+
 ---TODO: Document the MNAME module
----@class MNAME
-local M = {}
-
---- --------------------------------------------------------------
---- Public Module Variables
---- --------------------------------------------------------------
-
-M.name = "MNAME"
+---@class CNAMEModule
+local M = { name = "CNAMEModule" }
 
 --- --------------------------------------------------------------
 --- Public Module Functions
 --- --------------------------------------------------------------
 
 --- --------------------------------------------------------------
---- Metatable adjustments
+--- Module Metatable adjustments
 --- --------------------------------------------------------------
 
----Metatable to control module property access
+-- ---Metatable to control module property access
 M.__index = function(_, key)
-  return Shared.module_getters_handler(M, M.name, key)
+  return Shared.module_getters_handler(M, key, mod_props.getters)
 end
 ---Prevent modification of module properties by accident
 M.__newindex = function(self, key, value)
-  Shared.module_setters_handler(self, M.name, key, value)
+  Shared.module_setters_handler(M, key, value, mod_props.setters)
 end
 ---Prevent access to the module metatable
 M.__metatable = false
----Assign the metatable to the module
+---Assign the module metatable
 M = setmetatable(M, M)
 ---Module is ready here. Additional module operations can be added if needed.
 return M
